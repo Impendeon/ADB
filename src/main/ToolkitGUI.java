@@ -43,7 +43,6 @@ public class ToolkitGUI {
 	private JButton wipe;
 	private JButton pushAPK;
 	private JButton pushFile;
-	private JButton reinstallADB;
 	private JButton fullBackup;
 	private JButton connectedDevices;
 	private JButton connectedDevices2;
@@ -91,17 +90,13 @@ public class ToolkitGUI {
 		rebootBootloader = new JButton("Reboot Bootloader");
 		rebootBootloader.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Command cm = new Command("reboot bootloader");
-				CMD.commandWindowsADB(cm);
-				logArea.append(cm.getOutput());
+				logArea.append(ADB.pwd());
 			}
 		});
 		rebootRecovery = new JButton("Reboot Recovery");
 		rebootRecovery.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Command cm = new Command("reboot recovery");
-				CMD.commandWindowsADB(cm);
-				logArea.append(cm.getOutput());
+				logArea.append(ADB.pwd());
 			}
 		});
 		logArea = new JTextArea(10, 25);
@@ -134,19 +129,19 @@ public class ToolkitGUI {
 		frame.add(logScroller, BorderLayout.PAGE_END);
 
 		actionMap = new HashMap<>();
-		actionMap.put(flashSystem, source.FLASH_SYSTEM);
-		actionMap.put(flashData, source.FLASH_DATA);
-		actionMap.put(flashRecovery, source.FLASH_RECOVERY);
-		actionMap.put(pushAPK, source.PUSH_APK);
-		actionMap.put(pushFile, source.PUSH_FILE);
+		actionMap.put(flashSystem, Source.FLASH_SYSTEM);
+		actionMap.put(flashData, Source.FLASH_DATA);
+		actionMap.put(flashRecovery, Source.FLASH_RECOVERY);
+		actionMap.put(pushAPK, Source.PUSH_APK);
+		actionMap.put(pushFile, Source.PUSH_FILE);
 
 	}
 
 	public void draw() {
 		frame = new JFrame("ADB Toolkit");
-		frame.setSize(700, 280);
+		frame.setSize(880, 250);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
+		frame.setResizable(true);
 		components();
 		frame.setVisible(true);
 	}
@@ -171,16 +166,6 @@ public class ToolkitGUI {
 		pushAPK.addActionListener(filechooser);
 		pushFile = new JButton("Push File");
 		pushFile.addActionListener(filechooser);
-		reinstallADB = new JButton("Reinstall Files");
-		reinstallADB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					CMD.installFiles();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
 		fullBackup = new JButton("Full Backup");
 		fullBackup.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -226,7 +211,6 @@ public class ToolkitGUI {
 		miscButtons.add(wipe);
 		miscButtons.add(pushAPK);
 		miscButtons.add(pushFile);
-		miscButtons.add(reinstallADB);
 		miscButtons.add(connectedDevices);
 		miscButtons.add(connectedDevices2);
 		advancedFrame.add(miscButtons, BorderLayout.NORTH);

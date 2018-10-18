@@ -1,9 +1,6 @@
 package commands;
 
-import java.util.ArrayList;
-import java.io.*;
-import java.nio.file.Files;
-
+import java.io.File;
 
 public class ADB {
 
@@ -51,4 +48,11 @@ public class ADB {
 		push.RunCommand();
 		return push.toString();
 	}
+
+	public static String pwd() {
+		Command pwd = new Command("pwd");
+		pwd.RunCommand();
+		return pwd.toString();
+	}
+
 }

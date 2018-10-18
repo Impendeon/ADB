@@ -1,5 +1,7 @@
 package commands;
 
+import java.io.*;
+
 public class Command {
 
     private String command;
@@ -13,7 +15,7 @@ public class Command {
     }
 
     public String toString() {
-        return getOutput() + "\n" + getError();
+        return getOutput();
     }
 
     public String getOutput() {
@@ -38,7 +40,8 @@ public class Command {
 
     public void RunCommand() {
         try {
-            ProcessBuilder p = new ProcessBuilder(this.getCommand());
+            String[] command = getCommand().split("\\s+");
+            ProcessBuilder p = new ProcessBuilder(command);
             Process process = p.start();
 
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
