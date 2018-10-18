@@ -38,29 +38,26 @@ public class ToolkitGUI {
 	private JButton flashData;
 	private JButton flashRecovery;
 	private JTextArea logArea;
-    private JScrollPane logScroller;
-    private JButton moreSettings;
-    private JButton wipe;
-    private JButton pushAPK;
-    private JButton pushFile;
-    private JButton reinstallADB;
-    private JButton fullBackup;
-    private JButton connectedDevices;
+	private JScrollPane logScroller;
+	private JButton moreSettings;
+	private JButton wipe;
+	private JButton pushAPK;
+	private JButton pushFile;
+	private JButton reinstallADB;
+	private JButton fullBackup;
+	private JButton connectedDevices;
 	private JButton connectedDevices2;
 	private HashMap<JButton, Source> actionMap;
 
-	
 	enum Source {
 		FLASH_DATA, FLASH_RECOVERY, FLASH_SYSTEM, PUSH_APK, PUSH_FILE;
 	}
 
-
-
-    private final JFileChooser fc = new JFileChooser();
-    private ActionListener filechooser = new ActionListener(){
-		public void actionPerformed(ActionEvent e){
+	private final JFileChooser fc = new JFileChooser();
+	private ActionListener filechooser = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
 			int returnval = fc.showOpenDialog(advancedFrame);
-			if (returnval == JFileChooser.APPROVE_OPTION){
+			if (returnval == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				Source source = actionMap.get(e.getSource());
 
@@ -68,7 +65,7 @@ public class ToolkitGUI {
 				case FLASH_SYSTEM:
 					logArea.append(ADB.flash("system", file));
 					break;
-				
+
 				case FLASH_DATA:
 					logArea.append(ADB.flash("data", file));
 					break;
@@ -80,40 +77,40 @@ public class ToolkitGUI {
 				case PUSH_APK:
 					logArea.append(ADB.install(file));
 					break;
-				
+
 				case PUSH_FILE:
 					logArea.append(ADB.push(file));
 					break;
 				}
-		
+
 			}
 		}
 	};
-    	
-	public void components(){
+
+	public void components() {
 		rebootBootloader = new JButton("Reboot Bootloader");
-		rebootBootloader.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		rebootBootloader.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				Command cm = new Command("reboot bootloader");
 				CMD.commandWindowsADB(cm);
 				logArea.append(cm.getOutput());
 			}
 		});
 		rebootRecovery = new JButton("Reboot Recovery");
-		rebootRecovery.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		rebootRecovery.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				Command cm = new Command("reboot recovery");
 				CMD.commandWindowsADB(cm);
 				logArea.append(cm.getOutput());
 			}
 		});
-		logArea = new JTextArea(10,25);
+		logArea = new JTextArea(10, 25);
 		logArea.setBackground(Color.BLACK);
 		logArea.setForeground(Color.GREEN);
 		logScroller = new JScrollPane();
 		logScroller.setBorder(BorderFactory.createTitledBorder("Log"));
 		logScroller.setViewportView(logArea);
-		
+
 		flashSystem = new JButton("Flash System");
 		flashSystem.addActionListener(filechooser);
 		flashData = new JButton("Flash Data");
@@ -121,8 +118,8 @@ public class ToolkitGUI {
 		flashRecovery = new JButton("Flash Recovery");
 		flashRecovery.addActionListener(filechooser);
 		moreSettings = new JButton("Advanced Options");
-		moreSettings.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		moreSettings.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				drawSecondFrame();
 			}
 		});
@@ -142,11 +139,10 @@ public class ToolkitGUI {
 		actionMap.put(flashRecovery, source.FLASH_RECOVERY);
 		actionMap.put(pushAPK, source.PUSH_APK);
 		actionMap.put(pushFile, source.PUSH_FILE);
-		
+
 	}
 
-	
-	public void draw(){
+	public void draw() {
 		frame = new JFrame("ADB Toolkit");
 		frame.setSize(700, 280);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -154,17 +150,19 @@ public class ToolkitGUI {
 		components();
 		frame.setVisible(true);
 	}
-	public void drawSecondFrame(){
+
+	public void drawSecondFrame() {
 		advancedFrame = new JFrame("Advanced Options");
 		advancedFrame.setSize(325, 250);
 		advancedFrame.setResizable(false);
 		componentsSecondFrame();
 		advancedFrame.setVisible(true);
 	}
-	public void componentsSecondFrame(){
+
+	public void componentsSecondFrame() {
 		wipe = new JButton("Factory Reset");
-		wipe.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		wipe.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				logArea.append(ADB.wipeData());
 				logArea.append(ADB.wipeCache());
 			}
@@ -174,8 +172,8 @@ public class ToolkitGUI {
 		pushFile = new JButton("Push File");
 		pushFile.addActionListener(filechooser);
 		reinstallADB = new JButton("Reinstall Files");
-		reinstallADB.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		reinstallADB.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				try {
 					CMD.installFiles();
 				} catch (IOException e1) {
@@ -184,40 +182,45 @@ public class ToolkitGUI {
 			}
 		});
 		fullBackup = new JButton("Full Backup");
-		fullBackup.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		fullBackup.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
-				//Command library should direcyl return output to append, should have command "BACKUPALL() that returns output"
+				// Command library should direcyl return output to append, should have command
+				// "BACKUPALL() that returns output"
 				// Command cm = new Command("backup -all" + CMD.getDrive() +
-				// 		"\\Users\\" + CMD.getUser() + "\\documents\\ADB\\backups\\backup.ab");
+				// "\\Users\\" + CMD.getUser() + "\\documents\\ADB\\backups\\backup.ab");
 				// CMD.commandWindowsADB(cm);
 				logArea.append("TEST");
 			}
 		});
 		connectedDevices = new JButton("Check ADB Connected Devices");
-		connectedDevices.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		connectedDevices.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				logArea.append(ADB.checkADBDevices());
 			}
 		});
 		connectedDevices2 = new JButton("Check Fastboot Connected Devices");
-		connectedDevices2.addActionListener(new ActionListener(){
+		connectedDevices2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				logArea.append(ADB.checkFastbootDevices());
 			}
 		});
-//		String[] backColors = {"Black" , "Green" , "Orange" , "Cyan"}; //add more
-//		backColor = new JComboBox(backColors);
-//		backColor.addActionListener(new ActionListener(){
-//			public void actionPerformed(ActionEvent e){
-//				if(backColor.getSelectedItem().equals("Black")) logArea.setBackground(Color.BLACK);
-//				if(backColor.getSelectedItem().equals("Green")) logArea.setBackground(Color.GREEN);
-//				if(backColor.getSelectedItem().equals("Orange")) logArea.setBackground(Color.ORANGE);
-//				if(backColor.getSelectedItem().equals("Cyan")) logArea.setBackground(Color.CYAN);
-//				System.out.println(backColor.getActionCommand());
-//				frame.repaint();
-//			}
-//		});
+		// String[] backColors = {"Black" , "Green" , "Orange" , "Cyan"}; //add more
+		// backColor = new JComboBox(backColors);
+		// backColor.addActionListener(new ActionListener(){
+		// public void actionPerformed(ActionEvent e){
+		// if(backColor.getSelectedItem().equals("Black"))
+		// logArea.setBackground(Color.BLACK);
+		// if(backColor.getSelectedItem().equals("Green"))
+		// logArea.setBackground(Color.GREEN);
+		// if(backColor.getSelectedItem().equals("Orange"))
+		// logArea.setBackground(Color.ORANGE);
+		// if(backColor.getSelectedItem().equals("Cyan"))
+		// logArea.setBackground(Color.CYAN);
+		// System.out.println(backColor.getActionCommand());
+		// frame.repaint();
+		// }
+		// });
 		JPanel miscButtons = new JPanel();
 		miscButtons.setLayout(new BoxLayout(miscButtons, BoxLayout.PAGE_AXIS));
 		miscButtons.add(wipe);
@@ -227,10 +230,11 @@ public class ToolkitGUI {
 		miscButtons.add(connectedDevices);
 		miscButtons.add(connectedDevices2);
 		advancedFrame.add(miscButtons, BorderLayout.NORTH);
-		
+
 	}
-	public static void main(String[] args){	
-		//CMD.installFiles();
+
+	public static void main(String[] args) {
+		// CMD.installFiles();
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException e) {
