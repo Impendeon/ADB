@@ -1,3 +1,5 @@
+package main;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -8,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
@@ -24,13 +27,9 @@ import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-/*
- * Class to draw a GUI for running ADB and Fastboot for a connected Android Device
- * Commands using the Command class and the CMD class
- * Uses a single JFrame, and then a second optional JFrame for further options
- */
+import commands.ADB;
+
 public class ToolkitGUI {
-	//NEXT STEP COPY THE ADB FILES TO THE USER DIRECTORY FROM RES
 	private static JFrame frame;
 	private static JFrame advancedFrame;
 	private JButton flashSystem;
@@ -47,45 +46,49 @@ public class ToolkitGUI {
     private JButton reinstallADB;
     private JButton fullBackup;
     private JButton connectedDevices;
-    private JButton connectedDevices2;
+	private JButton connectedDevices2;
+	private HashMap<JButton, Source> actionMap;
+
+	
+	enum Source {
+		FLASH_DATA, FLASH_RECOVERY, FLASH_SYSTEM, PUSH_APK, PUSH_FILE;
+	}
+
+
+
     private final JFileChooser fc = new JFileChooser();
     private ActionListener filechooser = new ActionListener(){
 		public void actionPerformed(ActionEvent e){
 			int returnval = fc.showOpenDialog(advancedFrame);
 			if (returnval == JFileChooser.APPROVE_OPTION){
 				File file = fc.getSelectedFile();
-				String name = file.getPath();
-				if(e.getSource().equals(flashSystem)){
-					Command cm = new Command("fastboot flash system " + name);
-					CMD.commandWindowsADB(cm);
-					logArea.append(cm.getOutput());
-					
+				Source source = actionMap.get(e.getSource());
+
+				switch (source) {
+				case FLASH_SYSTEM:
+					logArea.append(ADB.flash("system", file));
+					break;
+				
+				case FLASH_DATA:
+					logArea.append(ADB.flash("data", file));
+					break;
+
+				case FLASH_RECOVERY:
+					logArea.append(ADB.flash("recovery", file));
+					break;
+
+				case PUSH_APK:
+					logArea.append(ADB.install(file));
+					break;
+				
+				case PUSH_FILE:
+					logArea.append(ADB.push(file));
+					break;
 				}
-				else if (e.getSource().equals(flashRecovery)){
-					Command cm = new Command("fastboot flash recovery " + name);
-					CMD.commandWindowsADB(cm);
-					logArea.append(cm.getOutput());
-				}
-				else if (e.getSource().equals(flashData)){
-					Command cm = new Command("fastboot flash data " + name);
-					CMD.commandWindowsADB(cm);
-					logArea.append(cm.getOutput());
-				}
-				else if (e.getSource().equals(pushAPK)){
-					Command cm = new Command("adb install " + name);
-					CMD.commandWindowsADB(cm);
-					logArea.append(cm.getOutput());
-				}
-				else if (e.getSource().equals(pushFile)){
-					Command cm = new Command("adb push " + name + " /sdcard/PushedFiles");
-					CMD.commandWindowsADB(cm);
-					logArea.append(cm.getOutput());
-				}
+		
 			}
 		}
 	};
-//    private JComboBox backColor;
-//    private JComboBox txtColor;
     	
 	public void components(){
 		rebootBootloader = new JButton("Reboot Bootloader");
@@ -132,6 +135,13 @@ public class ToolkitGUI {
 		flashButtons.add(moreSettings);
 		frame.add(flashButtons, BorderLayout.LINE_START);
 		frame.add(logScroller, BorderLayout.PAGE_END);
+
+		actionMap = new HashMap<>();
+		actionMap.put(flashSystem, source.FLASH_SYSTEM);
+		actionMap.put(flashData, source.FLASH_DATA);
+		actionMap.put(flashRecovery, source.FLASH_RECOVERY);
+		actionMap.put(pushAPK, source.PUSH_APK);
+		actionMap.put(pushFile, source.PUSH_FILE);
 		
 	}
 
@@ -155,13 +165,8 @@ public class ToolkitGUI {
 		wipe = new JButton("Factory Reset");
 		wipe.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				ArrayList<Command>cm = new ArrayList<>();
-				Command c = new Command("fastboot wipe data");
-				Command c2 = new Command("fastboot wipe cache");
-				cm.add(c);
-				cm.add(c2);
-				CMD.commandWindowsADB(cm);
-				logArea.append(CMD.getOutput(cm));
+				logArea.append(ADB.wipeData());
+				logArea.append(ADB.wipeCache());
 			}
 		});
 		pushAPK = new JButton("Install App");
@@ -181,26 +186,24 @@ public class ToolkitGUI {
 		fullBackup = new JButton("Full Backup");
 		fullBackup.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				Command cm = new Command("backup -all" + CMD.getDrive() +
-						"\\Users\\" + CMD.getUser() + "\\documents\\ADB\\backups\\backup.ab");
-				CMD.commandWindowsADB(cm);
-				logArea.append(cm.getOutput());
+
+				//Command library should direcyl return output to append, should have command "BACKUPALL() that returns output"
+				// Command cm = new Command("backup -all" + CMD.getDrive() +
+				// 		"\\Users\\" + CMD.getUser() + "\\documents\\ADB\\backups\\backup.ab");
+				// CMD.commandWindowsADB(cm);
+				logArea.append("TEST");
 			}
 		});
 		connectedDevices = new JButton("Check ADB Connected Devices");
 		connectedDevices.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				Command cm = new Command("devices");
-				CMD.commandWindowsADB(cm);
-				logArea.append(cm.getOutput());
+				logArea.append(ADB.checkADBDevices());
 			}
 		});
 		connectedDevices2 = new JButton("Check Fastboot Connected Devices");
 		connectedDevices2.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				Command cm = new Command("fastboot devices");
-				CMD.commandWindowsADB(cm);
-				logArea.append(cm.getOutput());
+			public void actionPerformed(ActionEvent e) {
+				logArea.append(ADB.checkFastbootDevices());
 			}
 		});
 //		String[] backColors = {"Black" , "Green" , "Orange" , "Cyan"}; //add more
