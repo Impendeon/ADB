@@ -18,15 +18,15 @@ public class ADB {
 		}
 
 		public String toString(){
-			return this.output + "\n" + this.error;
+			return getOutput() + "\n" + getError();
 		}
 
 		public String getOutput(){ return this.output; }
 		public String getError(){ return this.error; }
 		public String getCommand(){ return this.command; }
 
-		public String setOutput(String output){ this.output = output; }
-		public String setError(String error){ this.error = error; }
+		public void setOutput(String output){ this.output = output; }
+		public void setError(String error){ this.error = error; }
 
 	}
 
@@ -43,7 +43,7 @@ public class ADB {
             }
 			
 			while ((output = error.readLine()) != null) {
-				cm.setOutput(cm.getOutput() + output + "\n");
+				cm.setError(cm.getOutput() + output + "\n");
             }
 		} catch (IOException e){
 			System.out.println("Invalid Command");
